@@ -6,8 +6,7 @@
 
 import Foundation
 
-/// Grammar for the JavaScript language. Use this implementation when
-/// highlighting Swift code. This is the default grammar.
+/// Grammar for the JavaScript language.
 public struct JavaScriptGrammar: Grammar {
     public let delimiters: CharacterSet
     public let syntaxRules: [SyntaxRule]
@@ -17,7 +16,7 @@ public struct JavaScriptGrammar: Grammar {
         delimiters.remove("_")
         delimiters.remove("\"")
         delimiters.remove("\'")
-        delimiters.remove(";")
+        //delimiters.remove(";")
         self.delimiters = delimiters
 
         syntaxRules = [
@@ -232,7 +231,7 @@ private extension JavaScriptGrammar {
 
             if let previousToken = segment.tokens.previous {
                 // Don't highlight most keywords when used as a parameter label
-                if !segment.tokens.current.isAny(of: "this", "let", "var") {
+                if !segment.tokens.current.isAny(of: "this", "const", "let", "var") {
                     guard !previousToken.isAny(of: "(", ",") else {
                         return false
                     }
@@ -248,7 +247,8 @@ private extension JavaScriptGrammar {
 
         private let declarationKeywords: Set<String> = [
             "class", "enum", "function",
-            "typealias", "require", "import"
+            "type", "require", "import",
+            "export",
         ]
 
         func matches(_ segment: Segment) -> Bool {
@@ -326,11 +326,11 @@ private extension Segment {
             return true
         }
 
-//        if delimiters.reduce(false, { (result, delimiter) -> Bool in
-//            return result || tokens.current.hasSuffix(delimiter)
-//        }) {
-//            return true
-//        }
+        if delimiters.reduce(false, { (result, delimiter) -> Bool in
+            return result || tokens.current.hasSuffix(delimiter)
+        }) {
+            return true
+        }
 
         var markerCounts = (start: 0, end: 0)
         var previousToken: String?
